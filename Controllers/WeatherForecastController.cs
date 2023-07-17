@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Qurabani.com_Server.Controllers.v1
+namespace Qurabani.com_Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]

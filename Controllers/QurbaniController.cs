@@ -25,7 +25,7 @@ namespace Qurabani.com_Server.Controllers.v1
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
         [Auth]
-        [HttpGet("{type=int}/{part=int}/{number=int}/{partPrice=string}/{desc=}")]
+        [HttpGet("{type=int}/{part=int}/{number=int}/{partPrice=string}")]
         public async Task<IActionResult> AddAnimal(int type, int part, int number, string partPrice, string desc = "")
         {
             ApiResponse<string> response = new ApiResponse<string>();

@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
+using Qurabani.com_Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,24 +11,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Api Versioning
 // Add API Versioning to the Project
-builder.Services.AddApiVersioning(config =>
-{
-	// Specify the default API Version as 1.0
-	config.DefaultApiVersion = new ApiVersion(1, 0);
-	// If the client hasn't specified the API version in the request, use the default API version number 
-	config.AssumeDefaultVersionWhenUnspecified = true;
-	// Advertise the API versions supported for the particular endpoint
-	config.ReportApiVersions = true;
-});
-// Add ApiExplorer to discover versions
-builder.Services.AddVersionedApiExplorer(setup =>
-{
-	setup.GroupNameFormat = "'v'VVV";
-	setup.SubstituteApiVersionInUrl = true;
-});
+//builder.Services.AddApiVersioning(config =>
+//{
+//	// Specify the default API Version as 1.0
+//	config.DefaultApiVersion = new ApiVersion(1, 0);
+//	// If the client hasn't specified the API version in the request, use the default API version number 
+//	config.AssumeDefaultVersionWhenUnspecified = true;
+//	// Advertise the API versions supported for the particular endpoint
+//	config.ReportApiVersions = false;
+//});
+//// Add ApiExplorer to discover versions
+//builder.Services.AddVersionedApiExplorer(setup =>
+//{
+//	setup.GroupNameFormat = "'v'VVV";
+//	setup.SubstituteApiVersionInUrl = false;
+//});
 #endregion
 
 builder.Services.AddControllers();
+builder.Services.AddDbContext<QurbaniContext>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddEndpointsApiExplorer();
@@ -36,14 +38,15 @@ builder.Services.AddSwaggerGen(c =>
 		// top level
 		c.SwaggerDoc("v1", new OpenApiInfo
 		{
-			Title = "aaa",
+			Title = "Qurbani.com",
 			Version = "v1",
 			Contact = new OpenApiContact
 			{
-				Name = "aas",
+				Name = "Arham AB",
 				Url = new Uri("https://aaa-portfolio.web.app")
 			}
 		});
+
 		// security header
 		c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
 		{
@@ -73,7 +76,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+//var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())

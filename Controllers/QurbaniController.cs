@@ -1,6 +1,7 @@
 ﻿using static Qurabani.com_Server.Responses.SwaggerResponse;
 using Qurabani.com_Server.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Qurabani.com_Server.Models.DTOs;
 
 namespace Qurabani.com_Server.Controllers.v1
 {
@@ -20,6 +21,8 @@ namespace Qurabani.com_Server.Controllers.v1
 			intHelper = new IntIsNullOrEmpty();
 		}
 
+
+		// ADD ANIMAL
 		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
         [SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
@@ -30,7 +33,7 @@ namespace Qurabani.com_Server.Controllers.v1
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
         [Auth]
-        [HttpGet("{type=int}/{number=int}/{partPrice=string}")]
+        [HttpPost("{type=int}/{number=int}/{partPrice=string}")]
         public async Task<IActionResult> AddAnimal(int type, int number, string partPrice, string desc = null)
         {
             ApiResponse<string> response = new ApiResponse<string>();
@@ -38,7 +41,7 @@ namespace Qurabani.com_Server.Controllers.v1
             {
 				response.ResponseCode = (int)HttpStatusCode.BadRequest;
 				response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
-				response.ErrorMessage = "Type, Part, Number or Part-Price cannot should not be empty";
+				response.ErrorMessage = "Type, Part, Number or Part-Price should not be empty";
 				return BadRequest(response);
 			};
 
@@ -71,6 +74,22 @@ namespace Qurabani.com_Server.Controllers.v1
 			response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
 			response.ErrorMessage = "Error in saving the new data in the database";
 			return Forbid();
+		}
+
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
+		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]
+		[Produces("application/json", "application/xml")]
+		[Consumes("application/json", "application/xml")]
+		[SwaggerOperation(
+			Summary = "Get all initial product list",
+			Description = "This function returns all products in MongoDB format")]
+		[Auth]
+		[HttpPost]
+		public async Task<IActionResult> ConfirmDealing([FromBody] DealingDTO dealingDTO)
+		{
+			return null;
 		}
 	}
     

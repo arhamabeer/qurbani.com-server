@@ -37,6 +37,8 @@ namespace Qurabani.com_Server.Controllers.v1
 			Description = "This function returns all products in MongoDB format")]
 		[Auth]
 		[HttpPost("{type=int}/{number=int}/{partPrice=string}")]
+
+
 		public async Task<IActionResult> AddAnimal(int type, int number, string partPrice, string desc = null)
 		{
 			ApiResponse<string> response = new ApiResponse<string>();
@@ -79,6 +81,8 @@ namespace Qurabani.com_Server.Controllers.v1
 			return Forbid();
 		}
 
+
+		// ADD DEAL
 		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
 		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
 		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
@@ -95,83 +99,158 @@ namespace Qurabani.com_Server.Controllers.v1
 			ApiResponse<string> response = new ApiResponse<string>();
 			try
 			{
-			if (string.IsNullOrEmpty(dealingDTO.Address) ||
-				string.IsNullOrEmpty(dealingDTO.Name) ||
-				string.IsNullOrEmpty(dealingDTO.Contact) ||
-				string.IsNullOrEmpty(dealingDTO.EmergencyContact) ||
-				string.IsNullOrEmpty(dealingDTO.Description) ||
-				string.IsNullOrEmpty(dealingDTO.Nic) ||
-				intHelper.IntergerIsNullOrEmpty(dealingDTO.AdId) ||
-				intHelper.IntergerIsNullOrEmpty(dealingDTO.PartId) ||
-				intHelper.IntergerIsNullOrEmpty(dealingDTO.QurbaniDay))
-			{
-				response.ResponseCode = (int)HttpStatusCode.BadRequest;
-				response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
-				response.ErrorMessage = "Every Field is Mandatory and cannot be empty";
-				return BadRequest(response);
-			}
-				
-			var cond1 = await _context.AnimalParts.FirstOrDefaultAsync(e => e.PartId == dealingDTO.PartId);
-			var cond2 = await _context.AnimalDetails.FirstOrDefaultAsync(e => e.Adid == dealingDTO.AdId);
-			if (cond1 == null || cond2 == null)
-			{
-				response.ResponseCode = (int)HttpStatusCode.BadRequest;
-				response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
-				response.ErrorMessage = "Invalid Animal or Part";
-				return BadRequest(response);
-			}
-			if (await _context.Dealings.AnyAsync(e => e.Adid == dealingDTO.AdId && e.PartId == dealingDTO.PartId))
-			{
-				response.ResponseCode = (int)HttpStatusCode.BadRequest;
-				response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
-				response.ErrorMessage = "This Animal Part is already assigned to another Person";
-				return BadRequest(response);
-			}
-
-			var personData = new Person
-			{
-				Address = dealingDTO.Address,
-				Contact = dealingDTO.Contact,
-				EmergencyContact = dealingDTO.EmergencyContact,
-				Name = dealingDTO.Name,
-				Nic = dealingDTO.Nic,
-				Memo = null
-			};
-			var addPerson = await _context.People.AddAsync(personData);
-			var resPerson = await _context.SaveChangesAsync();
-			var PersonId = personData.PersonId;
-			if (resPerson > 0)
-			{
-				var dealData = new Dealing
+				if (string.IsNullOrEmpty(dealingDTO.Address) ||
+					string.IsNullOrEmpty(dealingDTO.Name) ||
+					string.IsNullOrEmpty(dealingDTO.Contact) ||
+					string.IsNullOrEmpty(dealingDTO.EmergencyContact) ||
+					string.IsNullOrEmpty(dealingDTO.Description) ||
+					string.IsNullOrEmpty(dealingDTO.Nic) ||
+					intHelper.IntergerIsNullOrEmpty(dealingDTO.AdId) ||
+					intHelper.IntergerIsNullOrEmpty(dealingDTO.PartId) ||
+					intHelper.IntergerIsNullOrEmpty(dealingDTO.QurbaniDay))
 				{
-					PersonId = PersonId,
-					Adid = dealingDTO.AdId,
-					PartId = dealingDTO.PartId,
-					QurbaniDay = dealingDTO.QurbaniDay,
-					Description = dealingDTO.Description,
-					IsConfirm = true,
-					PickedUp = false,
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "Every Field is Mandatory and cannot be empty";
+					return BadRequest(response);
+				}
+
+				var cond1 = await _context.AnimalParts.FirstOrDefaultAsync(e => e.PartId == dealingDTO.PartId);
+				var cond2 = await _context.AnimalDetails.FirstOrDefaultAsync(e => e.Adid == dealingDTO.AdId);
+				if (cond1 == null || cond2 == null)
+				{
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "Invalid Animal or Part";
+					return BadRequest(response);
+				}
+				if (await _context.People.AnyAsync(e => e.Nic == dealingDTO.Nic))
+				{
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "NIC already assigned to an other Animal";
+					return BadRequest(response);
+				}
+				if (await _context.Dealings.AnyAsync(e => e.Adid == dealingDTO.AdId && e.PartId == dealingDTO.PartId))
+				{
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "This Animal Part is already assigned to another Person";
+					return BadRequest(response);
+				}
+
+				var personData = new Person
+				{
+					Address = dealingDTO.Address,
+					Contact = dealingDTO.Contact,
+					EmergencyContact = dealingDTO.EmergencyContact,
+					Name = dealingDTO.Name,
+					Nic = dealingDTO.Nic,
 					Memo = null
 				};
-				var addDeal = await _context.Dealings.AddAsync(dealData);
-				var resDeal = await _context.SaveChangesAsync();
-				if (resDeal > 0)
+				var addPerson = await _context.People.AddAsync(personData);
+				var resPerson = await _context.SaveChangesAsync();
+				var PersonId = personData.PersonId;
+				if (resPerson > 0)
 				{
-					response.ResponseCode = (int)HttpStatusCode.OK;
-					response.ResponseMessage = HttpStatusCode.OK.ToString();
-					response.Data = "New Deal has been registered in the Database";
-					return Ok(response);
+					var dealData = new Dealing
+					{
+						PersonId = PersonId,
+						Adid = dealingDTO.AdId,
+						PartId = dealingDTO.PartId,
+						QurbaniDay = dealingDTO.QurbaniDay,
+						Description = dealingDTO.Description,
+						IsConfirm = true,
+						PickedUp = false,
+						Memo = null
+					};
+					var addDeal = await _context.Dealings.AddAsync(dealData);
+					var resDeal = await _context.SaveChangesAsync();
+					if (resDeal > 0)
+					{
+						response.ResponseCode = (int)HttpStatusCode.OK;
+						response.ResponseMessage = HttpStatusCode.OK.ToString();
+						response.Data = "New Deal has been registered in the Database";
+						return Ok(response);
+					}
+					response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+					response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+					response.ErrorMessage = "Error in saving the new data in the database";
+					return Forbid();
 				}
 				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
 				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
 				response.ErrorMessage = "Error in saving the new data in the database";
 				return Forbid();
-			}
-			response.ResponseCode = (int)HttpStatusCode.InternalServerError;
-			response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
-			response.ErrorMessage = "Error in saving the new data in the database";
-			return Forbid();
 
+			}
+			catch (Exception ex)
+			{
+				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+				response.ErrorMessage = "Server Error during the execution. Try Again";
+				return Forbid();
+			}
+		}
+
+
+		// ADD
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<DealingDTO>))]
+		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]
+		[Produces("application/json", "application/xml")]
+		[Consumes("application/json", "application/xml")]
+		[SwaggerOperation(
+			Summary = "Get all initial product list",
+			Description = "This function returns all products in MongoDB format")]
+		[Auth]
+		[HttpGet]
+		public async Task<IActionResult> IssueDealToPerson(string nic)
+		{
+			ApiResponse<DealingDTO> response = new ApiResponse<DealingDTO>();
+			try
+			{
+				if (string.IsNullOrEmpty(nic))
+				{
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "NIC cannot be empty";
+					return BadRequest(response);
+				}
+				var person_data = await _context.People.FirstOrDefaultAsync(e => e.Nic == nic);
+				if(person_data == null)
+				{
+					response.ResponseCode = (int)HttpStatusCode.NotFound;
+					response.ResponseMessage = HttpStatusCode.NotFound.ToString();
+					response.ErrorMessage = "Cannot Find Any Person associated with given NIC number.";
+					return NotFound(response);
+				}
+				var deal_data  = await _context.Dealings.FirstOrDefaultAsync(e => e.PersonId == person_data.PersonId);
+				if(deal_data == null)
+				{
+					response.ResponseCode = (int)HttpStatusCode.NotFound;
+					response.ResponseMessage = HttpStatusCode.NotFound.ToString();
+					response.ErrorMessage = "No Deal is associated with given NIC number.";
+					return NotFound(response);
+				}
+				var response_data = new DealingDTO
+				{
+					Address = person_data.Address,
+					Contact = person_data.Contact,
+					EmergencyContact = person_data.EmergencyContact,
+					Name = person_data.Name,
+					Nic = nic,
+					QurbaniDay = (int)deal_data.QurbaniDay,
+					Description = deal_data.Description,
+					PartId = (int)deal_data.DealId,
+					AdId = (int)deal_data.Adid,
+				};
+				response.ResponseCode = (int)HttpStatusCode.OK;
+				response.ResponseMessage = HttpStatusCode.OK.ToString();
+				response.Description = "Data Fetched Successfully.";
+				response.Data = response_data;
+				return Ok(response);
 			}
 			catch(Exception ex)
 			{

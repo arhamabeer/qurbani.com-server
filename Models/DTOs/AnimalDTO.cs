@@ -5,8 +5,6 @@ public partial class AnimalDTO
 {
 	public string? Type { get; set; }
 
-	public int? Part { get; set; }
-
 	public int? Number { get; set; }
 
 	public decimal? PartSellPrice { get; set; }

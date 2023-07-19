@@ -13,5 +13,9 @@ namespace Qurabani.com_Server.Models.DTOs
 		public int PartId { get; set; }
 		public int QurbaniDay { get; set; }
 		public string Description { get; set; }
+		public int? DealId { get; set; }
+		public bool? PickedUp { get; set; }
+		public int? PersonId { get; set; }
+
 	}
 }

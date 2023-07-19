@@ -5,6 +5,7 @@ using Qurabani.com_Server.Models.DTOs;
 using Microsoft.IdentityModel.Tokens;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Azure;
+using Qurabani.com_Server.Models;
 
 namespace Qurabani.com_Server.Controllers.v1
 {
@@ -194,7 +195,7 @@ namespace Qurabani.com_Server.Controllers.v1
 		}
 
 
-		// ADD
+		// GET DEAL
 		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<DealingDTO>))]
 		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
 		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
@@ -206,7 +207,7 @@ namespace Qurabani.com_Server.Controllers.v1
 			Description = "This function returns all products in MongoDB format")]
 		[Auth]
 		[HttpGet]
-		public async Task<IActionResult> IssueDealToPerson(string nic)
+		public async Task<IActionResult> GetDealOfPerson(string nic)
 		{
 			ApiResponse<DealingDTO> response = new ApiResponse<DealingDTO>();
 			try
@@ -219,15 +220,15 @@ namespace Qurabani.com_Server.Controllers.v1
 					return BadRequest(response);
 				}
 				var person_data = await _context.People.FirstOrDefaultAsync(e => e.Nic == nic);
-				if(person_data == null)
+				if (person_data == null)
 				{
 					response.ResponseCode = (int)HttpStatusCode.NotFound;
 					response.ResponseMessage = HttpStatusCode.NotFound.ToString();
 					response.ErrorMessage = "Cannot Find Any Person associated with given NIC number.";
 					return NotFound(response);
 				}
-				var deal_data  = await _context.Dealings.FirstOrDefaultAsync(e => e.PersonId == person_data.PersonId);
-				if(deal_data == null)
+				var deal_data = await _context.Dealings.FirstOrDefaultAsync(e => e.PersonId == person_data.PersonId);
+				if (deal_data == null)
 				{
 					response.ResponseCode = (int)HttpStatusCode.NotFound;
 					response.ResponseMessage = HttpStatusCode.NotFound.ToString();
@@ -245,6 +246,9 @@ namespace Qurabani.com_Server.Controllers.v1
 					Description = deal_data.Description,
 					PartId = (int)deal_data.DealId,
 					AdId = (int)deal_data.Adid,
+					DealId = deal_data.DealId,
+					PickedUp = deal_data.PickedUp,
+					PersonId = person_data.PersonId
 				};
 				response.ResponseCode = (int)HttpStatusCode.OK;
 				response.ResponseMessage = HttpStatusCode.OK.ToString();
@@ -252,7 +256,7 @@ namespace Qurabani.com_Server.Controllers.v1
 				response.Data = response_data;
 				return Ok(response);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
 				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
@@ -260,6 +264,62 @@ namespace Qurabani.com_Server.Controllers.v1
 				return Forbid();
 			}
 		}
-	}
 
+		// ISSUE DEAL
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
+		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]
+		[Produces("application/json", "application/xml")]
+		[Consumes("application/json", "application/xml")]
+		[SwaggerOperation(
+			Summary = "Get all initial product list",
+			Description = "This function returns all products in MongoDB format")]
+		[Auth]
+		[HttpPost]
+		public async Task<IActionResult> IssueDealToPerson(int dealId, int personId)
+		{
+			ApiResponse<string> response = new ApiResponse<string>();
+			try
+			{
+				if (intHelper.IntergerIsNullOrEmpty(dealId) || intHelper.IntergerIsNullOrEmpty(dealId))
+				{
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "Invalid Deal ID or Person ID";
+					return BadRequest(response);
+				}
+				var deal = await _context.Dealings.FirstOrDefaultAsync(x => x.DealId == dealId && x.PersonId == personId);
+				if (deal == null)
+				{
+					response.ResponseCode = (int)HttpStatusCode.NotFound;
+					response.ResponseMessage = HttpStatusCode.NotFound.ToString();
+					response.ErrorMessage = "Cannot Find Any Deal associated with given IDs.";
+					return NotFound(response);
+				}
+				deal.PickedUp = true;
+				var res = await _context.SaveChangesAsync();
+				if (res > 0)
+				{
+					response.ResponseCode = (int)HttpStatusCode.OK;
+					response.ResponseMessage = HttpStatusCode.OK.ToString();
+					response.Data = "Data Updated Successfully.";
+					return Ok(response);
+				}
+				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+				response.ErrorMessage = "Server Error during the execution. Try Again";
+				return Forbid();
+			}
+			catch (Exception ex)
+			{
+				{
+					response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+					response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+					response.ErrorMessage = "Server Error during the execution. Try Again";
+					return Forbid();
+				}
+			}
+		}
+	}
 }

@@ -2,10 +2,6 @@
 using Qurabani.com_Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Qurabani.com_Server.Models.DTOs;
-using Microsoft.IdentityModel.Tokens;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Azure;
-using Qurabani.com_Server.Models;
 
 namespace Qurabani.com_Server.Controllers.v1
 {
@@ -319,6 +315,62 @@ namespace Qurabani.com_Server.Controllers.v1
 					response.ErrorMessage = "Server Error during the execution. Try Again";
 					return Forbid();
 				}
+			}
+		}
+
+
+		// GET ALL ANIMALS
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
+		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]
+		[Produces("application/json", "application/xml")]
+		[Consumes("application/json", "application/xml")]
+		[SwaggerOperation(
+			Summary = "Get all initial product list",
+			Description = "This function returns all products in MongoDB format")]
+		//[Auth]
+		[HttpGet]
+		public async Task<IActionResult> GetAllAnimals()
+		{
+			AnimalCountDTO res_data = new AnimalCountDTO
+			{
+				cows = 0,
+				goats = 0,
+				sheeps = 0,
+				camels = 0
+			};
+			ApiResponse<AnimalCountDTO> response = new ApiResponse<AnimalCountDTO>();
+			try
+			{
+				var animals = await _context.AnimalDetails.ToListAsync();
+				var cows = animals.Where(x => x.AnimalId == 1).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
+				var goats = animals.Where(x => x.AnimalId == 2).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
+				var sheeps = animals.Where(x => x.AnimalId == 3).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
+				var camels = animals.Where(x => x.AnimalId == 4).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
+
+
+				if (cows!= null)
+					res_data.cows = (int)cows.Number;
+				if (goats != null)
+					res_data.goats = (int)goats.Number;
+				if (sheeps != null)
+					res_data.sheeps = (int)sheeps.Number;
+				if (camels != null)
+					res_data.camels = (int)camels.Number;
+
+				response.ResponseCode = (int)HttpStatusCode.OK;
+				response.ResponseMessage = HttpStatusCode.OK.ToString();
+				response.Data = res_data;
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+				response.ErrorMessage = "Server Error during the execution. Try Again";
+				return Forbid();
+
 			}
 		}
 	}

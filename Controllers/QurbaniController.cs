@@ -2,11 +2,6 @@
 using Qurabani.com_Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Qurabani.com_Server.Models.DTOs;
-using Microsoft.IdentityModel.Tokens;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Azure;
-using Qurabani.com_Server.Models;
-using System.Collections.Generic;
 
 namespace Qurabani.com_Server.Controllers.v1
 {
@@ -338,18 +333,35 @@ namespace Qurabani.com_Server.Controllers.v1
 		[HttpGet]
 		public async Task<IActionResult> GetAllAnimals()
 		{
-			ApiResponse<string> response = new ApiResponse<string>();
+			AnimalCountDTO res_data = new AnimalCountDTO
+			{
+				cows = 0,
+				goats = 0,
+				sheeps = 0,
+				camels = 0
+			};
+			ApiResponse<AnimalCountDTO> response = new ApiResponse<AnimalCountDTO>();
 			try
 			{
 				var animals = await _context.AnimalDetails.ToListAsync();
 				var cows = animals.Where(x => x.AnimalId == 1).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
-				var goats = animals.Where(x => x.AnimalId == 2).ToList();
-				var sheeps = animals.Where(x => x.AnimalId == 3).ToList();
-				var camels = animals.Where(x => x.AnimalId == 4).ToList();
+				var goats = animals.Where(x => x.AnimalId == 2).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
+				var sheeps = animals.Where(x => x.AnimalId == 3).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
+				var camels = animals.Where(x => x.AnimalId == 4).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
+
+
+				if (cows!= null)
+					res_data.cows = (int)cows.Number;
+				if (goats != null)
+					res_data.goats = (int)goats.Number;
+				if (sheeps != null)
+					res_data.sheeps = (int)sheeps.Number;
+				if (camels != null)
+					res_data.camels = (int)camels.Number;
 
 				response.ResponseCode = (int)HttpStatusCode.OK;
 				response.ResponseMessage = HttpStatusCode.OK.ToString();
-				response.Data = cows.Number.ToString();
+				response.Data = res_data;
 				return Ok(response);
 			}
 			catch (Exception ex)

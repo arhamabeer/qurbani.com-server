@@ -350,7 +350,7 @@ namespace Qurabani.com_Server.Controllers.v1
 				var camels = animals.Where(x => x.AnimalId == 4).ToList().OrderByDescending(x => x.Number).FirstOrDefault();
 
 
-				if (cows!= null)
+				if (cows != null)
 					res_data.cows = (int)cows.Number;
 				if (goats != null)
 					res_data.goats = (int)goats.Number;
@@ -362,6 +362,42 @@ namespace Qurabani.com_Server.Controllers.v1
 				response.ResponseCode = (int)HttpStatusCode.OK;
 				response.ResponseMessage = HttpStatusCode.OK.ToString();
 				response.Data = res_data;
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+				response.ErrorMessage = "Server Error during the execution. Try Again";
+				return Forbid();
+
+			}
+		}
+
+
+		// SHARE INPUT DATA FOR REGISTER ANIMAL
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
+		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]
+		[Produces("application/json", "application/xml")]
+		[Consumes("application/json", "application/xml")]
+		[SwaggerOperation(
+			Summary = "Get all initial product list",
+			Description = "This function returns all products in MongoDB format")]
+		//[Auth]
+		[HttpGet]
+		public async Task<IActionResult> GetAnimalRegisteration()
+		{
+			ApiResponse<List<Animal>> response = new ApiResponse<List<Animal>>();
+			try
+			{
+
+				List<Animal> animal = _context.Animals.ToList()
+
+				response.ResponseCode = (int)HttpStatusCode.OK;
+				response.ResponseMessage = HttpStatusCode.OK.ToString();
+				response.Data = animal;
 				return Ok(response);
 			}
 			catch (Exception ex)

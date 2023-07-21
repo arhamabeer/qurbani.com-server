@@ -393,7 +393,7 @@ namespace Qurabani.com_Server.Controllers.v1
 			try
 			{
 
-				List<Animal> animal = _context.Animals.ToList()
+				List<Animal> animal = _context.Animals.ToList();
 
 				response.ResponseCode = (int)HttpStatusCode.OK;
 				response.ResponseMessage = HttpStatusCode.OK.ToString();

@@ -2,6 +2,7 @@
 using Qurabani.com_Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Qurabani.com_Server.Models.DTOs;
+using Qurabani.com_Server.Models;
 
 namespace Qurabani.com_Server.Controllers.v1
 {
@@ -392,12 +393,64 @@ namespace Qurabani.com_Server.Controllers.v1
 			ApiResponse<List<Animal>> response = new ApiResponse<List<Animal>>();
 			try
 			{
-
 				List<Animal> animal = _context.Animals.ToList();
 
 				response.ResponseCode = (int)HttpStatusCode.OK;
 				response.ResponseMessage = HttpStatusCode.OK.ToString();
 				response.Data = animal;
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+				response.ErrorMessage = "Server Error during the execution. Try Again";
+				return Forbid();
+
+			}
+		}
+
+
+		// SHARE NUMBERS AVAILABLE DATA FOR SELECTED ANIMAL
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
+		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]
+		[Produces("application/json", "application/xml")]
+		[Consumes("application/json", "application/xml")]
+		[SwaggerOperation(
+			Summary = "Get all initial product list",
+			Description = "This function returns all products in MongoDB format")]
+		//[Auth]
+		[HttpGet]
+		public async Task<IActionResult> GetAnimalNumberAvailableForRegisteration(int AnimalId)
+		{
+			ApiResponse<List<int>> response = new ApiResponse<List<int>>();
+			try
+			{
+				if (intHelper.IntergerIsNullOrEmpty(AnimalId))
+				{
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "Invalid Animal ID provided";
+					return BadRequest(response);
+				}
+				List<AnimalDetail> details = _context.AnimalDetails.Where(e=> e.AnimalId == AnimalId).ToList();
+
+				List<int> existingNumbersList = details.Select(item => (int)item.Number).ToList();
+
+				// Generate a list of numbers from 1 to 100
+				List<int> allNumbers = Enumerable.Range(1, 200).ToList();
+
+				// Find numbers that are not in the existingNumbersList
+				List<int> notExistingNumbers = allNumbers.Except(existingNumbersList).ToList();
+
+				// Create a list of dictionaries for the not existing numbers
+				List<int> resultList = notExistingNumbers.Select(num => num).ToList();
+
+				response.ResponseCode = (int)HttpStatusCode.OK;
+				response.ResponseMessage = HttpStatusCode.OK.ToString();
+				response.Data = resultList;
 				return Ok(response);
 			}
 			catch (Exception ex)

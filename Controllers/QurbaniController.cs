@@ -33,11 +33,11 @@ namespace Qurabani.com_Server.Controllers.v1
 		[SwaggerOperation(
 			Summary = "Get all initial product list",
 			Description = "This function returns all products in MongoDB format")]
-		[Auth]
-		[HttpPost("{type=int}/{number=int}/{partPrice=string}")]
+		//[Auth]
+		[HttpPost("{desc=string}/{number=int}/{partPrice=string}/{type=int}")]
 
 
-		public async Task<IActionResult> AddAnimal(int type, int number, string partPrice, string desc = null)
+		public async Task<IActionResult> AddAnimal(string desc, int number, string partPrice, int type)
 		{
 			ApiResponse<string> response = new ApiResponse<string>();
 			if (string.IsNullOrEmpty(partPrice) || intHelper.IntergerIsNullOrEmpty(type) || intHelper.IntergerIsNullOrEmpty(number))

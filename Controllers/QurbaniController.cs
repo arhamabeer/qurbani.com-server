@@ -33,14 +33,12 @@ namespace Qurabani.com_Server.Controllers.v1
 		[SwaggerOperation(
 			Summary = "Get all initial product list",
 			Description = "This function returns all products in MongoDB format")]
-		[Auth]
-		[HttpPost("{type=int}/{number=int}/{partPrice=string}")]
-
-
-		public async Task<IActionResult> AddAnimal(int type, int number, string partPrice, string desc = null)
+		//[Auth]
+		[HttpPost()]
+		public async Task<IActionResult> AddAnimal([FromBody] AnimalDTO animalDTO)
 		{
 			ApiResponse<string> response = new ApiResponse<string>();
-			if (string.IsNullOrEmpty(partPrice) || intHelper.IntergerIsNullOrEmpty(type) || intHelper.IntergerIsNullOrEmpty(number))
+			if (string.IsNullOrEmpty(animalDTO.partPrice) || intHelper.IntergerIsNullOrEmpty(animalDTO.type) || intHelper.IntergerIsNullOrEmpty(animalDTO.number))
 			{
 				response.ResponseCode = (int)HttpStatusCode.BadRequest;
 				response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
@@ -48,7 +46,7 @@ namespace Qurabani.com_Server.Controllers.v1
 				return BadRequest(response);
 			};
 
-			if (await _context.AnimalDetails.AnyAsync(e => e.AnimalId == type && e.Number == number))
+			if (await _context.AnimalDetails.AnyAsync(e => e.AnimalId == animalDTO.type && e.Number == animalDTO.number))
 			{
 				response.ResponseCode = (int)HttpStatusCode.BadRequest;
 				response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
@@ -58,10 +56,10 @@ namespace Qurabani.com_Server.Controllers.v1
 
 			var data = new AnimalDetail
 			{
-				AnimalId = type,
-				Number = number,
-				PartSellPrice = decimal.Parse(partPrice),
-				Description = desc,
+				AnimalId = animalDTO.type,
+				Number = animalDTO.number,
+				PartSellPrice = decimal.Parse(animalDTO.partPrice),
+				Description = animalDTO.desc,
 				Memo = null
 			};
 			await _context.AnimalDetails.AddAsync(data);

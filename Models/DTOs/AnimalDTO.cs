@@ -3,14 +3,12 @@ namespace Qurabani.com_Server.Models;
 
 public partial class AnimalDTO
 {
-	public string? Type { get; set; }
+	public int type { get; set; }
 
-	public int? Number { get; set; }
+	public int number { get; set; }
 
-	public decimal? PartSellPrice { get; set; }
+	public string partPrice { get; set; }
 
-	public decimal? PartFinalPrice { get; set; }
-
-	public string? Description { get; set; }
+	public string desc { get; set; }
 
 }

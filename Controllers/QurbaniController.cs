@@ -33,14 +33,12 @@ namespace Qurabani.com_Server.Controllers.v1
 		[SwaggerOperation(
 			Summary = "Get all initial product list",
 			Description = "This function returns all products in MongoDB format")]
-		[Auth]
-		[HttpPost("{type=int}/{number=int}/{partPrice=string}")]
-
-
-		public async Task<IActionResult> AddAnimal(int type, int number, string partPrice, string desc = null)
+		//[Auth]
+		[HttpPost()]
+		public async Task<IActionResult> AddAnimal([FromBody] AnimalDTO animalDTO)
 		{
 			ApiResponse<string> response = new ApiResponse<string>();
-			if (string.IsNullOrEmpty(partPrice) || intHelper.IntergerIsNullOrEmpty(type) || intHelper.IntergerIsNullOrEmpty(number))
+			if (string.IsNullOrEmpty(animalDTO.partPrice) || intHelper.IntergerIsNullOrEmpty(animalDTO.type) || intHelper.IntergerIsNullOrEmpty(animalDTO.number))
 			{
 				response.ResponseCode = (int)HttpStatusCode.BadRequest;
 				response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
@@ -48,7 +46,7 @@ namespace Qurabani.com_Server.Controllers.v1
 				return BadRequest(response);
 			};
 
-			if (await _context.AnimalDetails.AnyAsync(e => e.AnimalId == type && e.Number == number))
+			if (await _context.AnimalDetails.AnyAsync(e => e.AnimalId == animalDTO.type && e.Number == animalDTO.number))
 			{
 				response.ResponseCode = (int)HttpStatusCode.BadRequest;
 				response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
@@ -58,10 +56,10 @@ namespace Qurabani.com_Server.Controllers.v1
 
 			var data = new AnimalDetail
 			{
-				AnimalId = type,
-				Number = number,
-				PartSellPrice = decimal.Parse(partPrice),
-				Description = desc,
+				AnimalId = animalDTO.type,
+				Number = animalDTO.number,
+				PartSellPrice = decimal.Parse(animalDTO.partPrice),
+				Description = animalDTO.desc,
 				Memo = null
 			};
 			await _context.AnimalDetails.AddAsync(data);
@@ -90,7 +88,7 @@ namespace Qurabani.com_Server.Controllers.v1
 		[SwaggerOperation(
 			Summary = "Get all initial product list",
 			Description = "This function returns all products in MongoDB format")]
-		[Auth]
+		//[Auth]
 		[HttpPost]
 		public async Task<IActionResult> ConfirmDealing([FromBody] DealingDTO dealingDTO)
 		{
@@ -435,7 +433,7 @@ namespace Qurabani.com_Server.Controllers.v1
 					response.ErrorMessage = "Invalid Animal ID provided";
 					return BadRequest(response);
 				}
-				List<AnimalDetail> details = _context.AnimalDetails.Where(e=> e.AnimalId == AnimalId).ToList();
+				List<AnimalDetail> details = _context.AnimalDetails.Where(e => e.AnimalId == AnimalId).ToList();
 
 				List<int> existingNumbersList = details.Select(item => (int)item.Number).ToList();
 
@@ -462,5 +460,73 @@ namespace Qurabani.com_Server.Controllers.v1
 
 			}
 		}
+
+		// SHARE NUMBERS AVAILABLE FOR DEALING
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
+		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]
+		[Produces("application/json", "application/xml")]
+		[Consumes("application/json", "application/xml")]
+		[SwaggerOperation(
+			Summary = "Get all initial product list",
+			Description = "This function returns all products in MongoDB format")]
+		//[Auth]
+		[HttpGet]
+		public async Task<IActionResult> GetAnimalNumberAvailableForDealing(int AnimalId)
+		{
+			ApiResponse<List<DealAndPartDTO>> response = new ApiResponse<List<DealAndPartDTO>>();
+			try
+			{
+				if (intHelper.IntergerIsNullOrEmpty(AnimalId))
+				{
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "Invalid Animal ID provided";
+					return BadRequest(response);
+				}
+				List<AnimalDetail> details = _context.AnimalDetails.Where(e => e.AnimalId == AnimalId).ToList();
+				List<Dealing> dealings = new List<Dealing>();
+				List<int> existingNumbersList = details.Select(item => (int)item.Number).ToList();
+				List<int> existingAdIdList = details.Select(item => (int)item.Adid).ToList();
+
+				List<DealAndPartDTO> part_data = new List<DealAndPartDTO>();
+
+				foreach (var Adid in existingAdIdList)
+				{
+					var deal_data = _context.Dealings.Where(e => e.Adid == Adid).ToList();
+					var animal_number = _context.AnimalDetails.Where(e=> e.Adid == Adid).ToList()[0].Number;
+					if (deal_data.Count > 0 && animal_number != null)
+					{
+						var loop_part_data = deal_data.Select(item => item.PartId).ToList();
+						DealAndPartDTO loop_data = new DealAndPartDTO
+						{
+							AdId = Adid,
+							Number = animal_number,
+							Parts = loop_part_data
+						};
+
+						part_data.Add(loop_data);
+					}
+				}
+
+
+				existingNumbersList.Sort();
+
+				response.ResponseCode = (int)HttpStatusCode.OK;
+				response.ResponseMessage = HttpStatusCode.OK.ToString();
+				response.Data = part_data;
+				return Ok(response);
+			}
+			catch (Exception ex)
+			{
+				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+				response.ResponseMessage = ex.Message;
+				response.ErrorMessage = "Server Error during the execution. Try Again";
+				return Forbid();
+
+			}
+		}
+
 	}
 }

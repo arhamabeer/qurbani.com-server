@@ -489,7 +489,7 @@ namespace Qurabani.com_Server.Controllers.v1
                 List<AnimalDetail> details = _context.AnimalDetails.Where(e => e.AnimalId == AnimalId).ToList();
                 List<Dealing> dealings = new List<Dealing>();
                 List<int> existingAdIdList = details.Select(item => (int)item.Adid).ToList();
-                var total_parts = _context.Animals.Where(x => x.AnimalId == AnimalId).Select(i => i.Parts).ToList()[0];
+				var total_parts = _context.Animals.Where(x => x.AnimalId == AnimalId).Select(i => i.Parts).ToList()[0];
                 List<DealAndPartDTO> part_data = new List<DealAndPartDTO>();
                 if (existingAdIdList.Count > 0)
                 {
@@ -497,20 +497,36 @@ namespace Qurabani.com_Server.Controllers.v1
                     {
                         var deal_data = _context.Dealings.Where(e => e.Adid == Adid).ToList();
                         var animal_number = _context.AnimalDetails.Where(e => e.Adid == Adid).ToList()[0].Number;
-                        if (deal_data.Count > 0 && animal_number != null)
+                        var price = _context.AnimalDetails.Where(e => e.Adid == Adid).ToList()[0].PartSellPrice;
+						if (deal_data.Count > 0)
                         {
                             List<int> allParts = Enumerable.Range(1, (int)total_parts).ToList();
                             var loop_part_data = deal_data.Select(item => item.PartId).ToList();
                             allParts.RemoveAll(x => loop_part_data.Contains(x));
+                            if(allParts.Count == 0) continue;
                             DealAndPartDTO loop_data = new DealAndPartDTO
                             {
                                 AdId = Adid,
                                 Number = animal_number,
-                                Parts = allParts
-                            };
+                                Parts = allParts,
+								Price = (int?)price
+							};
 
                             part_data.Add(loop_data);
                         }
+                        else
+                        {
+                            List<int> allParts = Enumerable.Range(1, (int)total_parts).ToList();
+							DealAndPartDTO loop_data = new DealAndPartDTO
+							{
+								AdId = Adid,
+								Number = animal_number,
+								Parts = allParts,
+								Price = (int?)price
+							};
+
+							part_data.Add(loop_data);
+						}
                     }
                     response.ResponseCode = (int)HttpStatusCode.OK;
                     response.ResponseMessage = HttpStatusCode.OK.ToString();

@@ -53,7 +53,7 @@ builder.Services.AddSwaggerGen(c =>
 			Version = "v1",
 			Contact = new OpenApiContact
 			{
-				Name = "Arham AB",
+				Name = "Arham Abeer",
 				Url = new Uri("https://aaa-portfolio.web.app")
 			}
 		});

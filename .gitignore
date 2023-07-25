@@ -11,6 +11,8 @@
 *.vs
 bin/
 obj/
+bin
+obj
 
 */bin/
 */obj/

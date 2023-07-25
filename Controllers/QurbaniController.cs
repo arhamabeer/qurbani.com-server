@@ -497,17 +497,20 @@ namespace Qurabani.com_Server.Controllers.v1
                     {
                         var deal_data = _context.Dealings.Where(e => e.Adid == Adid).ToList();
                         var animal_number = _context.AnimalDetails.Where(e => e.Adid == Adid).ToList()[0].Number;
-                        if (deal_data.Count > 0)
+                        var price = _context.AnimalDetails.Where(e => e.Adid == Adid).ToList()[0].PartSellPrice;
+						if (deal_data.Count > 0)
                         {
                             List<int> allParts = Enumerable.Range(1, (int)total_parts).ToList();
                             var loop_part_data = deal_data.Select(item => item.PartId).ToList();
                             allParts.RemoveAll(x => loop_part_data.Contains(x));
+                            if(allParts.Count == 0) continue;
                             DealAndPartDTO loop_data = new DealAndPartDTO
                             {
                                 AdId = Adid,
                                 Number = animal_number,
-                                Parts = allParts
-                            };
+                                Parts = allParts,
+								Price = (int?)price
+							};
 
                             part_data.Add(loop_data);
                         }
@@ -518,7 +521,8 @@ namespace Qurabani.com_Server.Controllers.v1
 							{
 								AdId = Adid,
 								Number = animal_number,
-								Parts = allParts
+								Parts = allParts,
+								Price = (int?)price
 							};
 
 							part_data.Add(loop_data);

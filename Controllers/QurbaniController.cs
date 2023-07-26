@@ -287,19 +287,19 @@ namespace Qurabani.com_Server.Controllers.v1
             Description = "This function returns all products in MongoDB format")]
         //[Auth]
         [HttpPost]
-        public async Task<IActionResult> IssueDealToPerson(int dealId, int personId)
+        public async Task<IActionResult> IssueDealToPerson([FromBody] IssueDealRequestDTO issueDealRequestDTO)
         {
             ApiResponse<string> response = new ApiResponse<string>();
             try
             {
-                if (intHelper.IntergerIsNullOrEmpty(dealId) || intHelper.IntergerIsNullOrEmpty(dealId))
+                if (intHelper.IntergerIsNullOrEmpty(issueDealRequestDTO.dealId) || intHelper.IntergerIsNullOrEmpty(issueDealRequestDTO.dealId))
                 {
                     response.ResponseCode = (int)HttpStatusCode.BadRequest;
                     response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
                     response.ErrorMessage = "Invalid Deal ID or Person ID";
                     return BadRequest(response);
                 }
-                var deal = await _context.Dealings.FirstOrDefaultAsync(x => x.DealId == dealId && x.PersonId == personId);
+                var deal = await _context.Dealings.FirstOrDefaultAsync(x => x.DealId == issueDealRequestDTO.dealId && x.PersonId == issueDealRequestDTO.personId);
                 if (deal == null)
                 {
                     response.ResponseCode = (int)HttpStatusCode.NotFound;

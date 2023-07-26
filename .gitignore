@@ -1,8 +1,39 @@
-﻿################################################################################
+################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
+# .NET Core Files
+*.obj
+*.dll
+*.exe
+*.pdb
+*.user
+*.vscode
+*.vs
+bin/
+obj/
+bin
+obj
+
+*/bin/
+*/obj/
+*/.obj
+*/.dll
+*/.exe
+*/.pdb
+*/.user
+*/.vscode
+*/.vs
 
 /.vs/VSWorkspaceState.json
 /.vs/qurbani.com-server/v17/.wsuo
 /.vs/Qurabani.com-Server/FileContentIndex/read.lock
 /.vs/Qurabani.com-Server/FileContentIndex/a6b09814-f3ee-452a-a13b-a1b7ad947189.vsidx
+**/bin/
+**/obj/
+**/.obj
+**/.dll
+**/.exe
+**/.pdb
+**/.user
+**/.vscode
+**/.vs

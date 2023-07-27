@@ -250,7 +250,7 @@ namespace Qurabani.com_Server.Controllers.v1
                     Nic = nic,
                     QurbaniDay = (int)deal_data.QurbaniDay,
                     Description = deal_data.Description,
-                    PartId = (int)deal_data.DealId,
+                    PartId = (int)deal_data.PartId,
                     AdId = (int)deal_data.Adid,
                     DealId = deal_data.DealId,
                     PickedUp = deal_data.PickedUp,

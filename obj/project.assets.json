@@ -4225,19 +4225,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\DELL\\.nuget\\packages\\": {}
+    "C:\\Users\\arham\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\DELL\\source\\repos\\Qurabani.com-Server\\Qurabani.com-Server\\Qurabani.com-Server.csproj",
+      "projectUniqueName": "C:\\Users\\arham\\source\\repos\\qurbani.com-server\\Qurabani.com-Server.csproj",
       "projectName": "Qurabani.com-Server",
-      "projectPath": "C:\\Users\\DELL\\source\\repos\\Qurabani.com-Server\\Qurabani.com-Server\\Qurabani.com-Server.csproj",
-      "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\DELL\\source\\repos\\Qurabani.com-Server\\Qurabani.com-Server\\obj\\",
+      "projectPath": "C:\\Users\\arham\\source\\repos\\qurbani.com-server\\Qurabani.com-Server.csproj",
+      "packagesPath": "C:\\Users\\arham\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\arham\\source\\repos\\qurbani.com-server\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\DELL\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\arham\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -4245,7 +4245,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\sdk\\7.0.306\\Sdks\\Microsoft.NET.Sdk.Web\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -4328,7 +4327,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.103\\RuntimeIdentifierGraph.json"
       }
     }
   }

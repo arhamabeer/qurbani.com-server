@@ -33,7 +33,7 @@ public partial class QurbaniContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Server=ChampionPC\\SQLEXPRESS;Database=qurbani;Trusted_Connection=True;TrustServerCertificate=true;");
-      //=> optionsBuilder.UseSqlServer("Server=DESKTOP-4VAOE89;Database=qurbani;Trusted_Connection=True;TrustServerCertificate=true;");
+    //=> optionsBuilder.UseSqlServer("Server=DESKTOP-4VAOE89;Database=qurbani;Trusted_Connection=True;TrustServerCertificate=true;");
 
 
 

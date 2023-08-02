@@ -5,7 +5,7 @@ namespace Qurabani.com_Server.Helpers
 {
 	public class Hasher
 	{
-		public static string HashPassword(string password, string salt, string pepper)
+		public string HashPassword(string password, string salt, string pepper)
 		{
 			using var sha256 = SHA256.Create();
 

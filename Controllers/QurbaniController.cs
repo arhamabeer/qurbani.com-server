@@ -99,7 +99,6 @@ namespace Qurabani.com_Server.Controllers.v1
                     string.IsNullOrEmpty(dealingDTO.Name) ||
                     string.IsNullOrEmpty(dealingDTO.Contact) ||
                     string.IsNullOrEmpty(dealingDTO.EmergencyContact) ||
-                    string.IsNullOrEmpty(dealingDTO.Description) ||
                     string.IsNullOrEmpty(dealingDTO.Nic) ||
                     intHelper.IntergerIsNullOrEmpty(dealingDTO.AdId) ||
                     intHelper.IntergerIsNullOrEmpty(dealingDTO.PartId) ||

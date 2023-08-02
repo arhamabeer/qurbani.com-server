@@ -6,5 +6,6 @@
 		public int? Number { get; set; }
 
 		public List<int>? Parts { get; set; }
-	}
+        public int? Price { get; set; }
+    }
 }

@@ -200,7 +200,7 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        [Auth]
+        //[Auth]
         [HttpGet]
         public async Task<IActionResult> GetDealOfPerson(string nic)
         {
@@ -230,6 +230,17 @@ namespace Qurabani.com_Server.Controllers.v1
                     response.ErrorMessage = "No Deal is associated with given NIC number.";
                     return NotFound(response);
                 }
+                var animal_detail = await _context.AnimalDetails.FirstOrDefaultAsync(e => e.Adid == deal_data.Adid);
+                if (animal_detail == null)
+                {
+                    response.ResponseCode = (int)HttpStatusCode.NotFound;
+                    response.ResponseMessage = HttpStatusCode.NotFound.ToString();
+                    response.ErrorMessage = "No Animal data found that associated with given NIC number.";
+                    return NotFound(response);
+                }
+                var animalType = await _context.Animals.FirstOrDefaultAsync(e => e.AnimalId == animal_detail.AnimalId);
+                if (animal_detail.PartFinalPrice == null)
+                    animal_detail.PartFinalPrice = animal_detail.PartSellPrice;
                 var response_data = new DealingDTO
                 {
                     Address = person_data.Address,
@@ -239,11 +250,15 @@ namespace Qurabani.com_Server.Controllers.v1
                     Nic = nic,
                     QurbaniDay = (int)deal_data.QurbaniDay,
                     Description = deal_data.Description,
-                    PartId = (int)deal_data.DealId,
+                    PartId = (int)deal_data.PartId,
                     AdId = (int)deal_data.Adid,
                     DealId = deal_data.DealId,
                     PickedUp = deal_data.PickedUp,
-                    PersonId = person_data.PersonId
+                    PersonId = person_data.PersonId,
+                    Number = (int)animal_detail.Number,
+                    Price = (int)animal_detail.PartSellPrice,
+                    FinalPrice = (int)animal_detail.PartFinalPrice,
+                    AnimalType = animalType.Type
                 };
                 response.ResponseCode = (int)HttpStatusCode.OK;
                 response.ResponseMessage = HttpStatusCode.OK.ToString();
@@ -270,21 +285,21 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        [Auth]
+        //[Auth]
         [HttpPost]
-        public async Task<IActionResult> IssueDealToPerson(int dealId, int personId)
+        public async Task<IActionResult> IssueDealToPerson([FromBody] IssueDealRequestDTO issueDealRequestDTO)
         {
             ApiResponse<string> response = new ApiResponse<string>();
             try
             {
-                if (intHelper.IntergerIsNullOrEmpty(dealId) || intHelper.IntergerIsNullOrEmpty(dealId))
+                if (intHelper.IntergerIsNullOrEmpty(issueDealRequestDTO.dealId) || intHelper.IntergerIsNullOrEmpty(issueDealRequestDTO.dealId))
                 {
                     response.ResponseCode = (int)HttpStatusCode.BadRequest;
                     response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
                     response.ErrorMessage = "Invalid Deal ID or Person ID";
                     return BadRequest(response);
                 }
-                var deal = await _context.Dealings.FirstOrDefaultAsync(x => x.DealId == dealId && x.PersonId == personId);
+                var deal = await _context.Dealings.FirstOrDefaultAsync(x => x.DealId == issueDealRequestDTO.dealId && x.PersonId == issueDealRequestDTO.personId);
                 if (deal == null)
                 {
                     response.ResponseCode = (int)HttpStatusCode.NotFound;
@@ -497,16 +512,32 @@ namespace Qurabani.com_Server.Controllers.v1
                     {
                         var deal_data = _context.Dealings.Where(e => e.Adid == Adid).ToList();
                         var animal_number = _context.AnimalDetails.Where(e => e.Adid == Adid).ToList()[0].Number;
-                        if (deal_data.Count > 0 && animal_number != null)
+                        var price = _context.AnimalDetails.Where(e => e.Adid == Adid).ToList()[0].PartSellPrice;
+                        if (deal_data.Count > 0)
                         {
                             List<int> allParts = Enumerable.Range(1, (int)total_parts).ToList();
                             var loop_part_data = deal_data.Select(item => item.PartId).ToList();
                             allParts.RemoveAll(x => loop_part_data.Contains(x));
+                            if (allParts.Count == 0) continue;
                             DealAndPartDTO loop_data = new DealAndPartDTO
                             {
                                 AdId = Adid,
                                 Number = animal_number,
-                                Parts = allParts
+                                Parts = allParts,
+                                Price = (int?)price
+                            };
+
+                            part_data.Add(loop_data);
+                        }
+                        else
+                        {
+                            List<int> allParts = Enumerable.Range(1, (int)total_parts).ToList();
+                            DealAndPartDTO loop_data = new DealAndPartDTO
+                            {
+                                AdId = Adid,
+                                Number = animal_number,
+                                Parts = allParts,
+                                Price = (int?)price
                             };
 
                             part_data.Add(loop_data);

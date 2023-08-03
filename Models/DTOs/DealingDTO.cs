@@ -16,6 +16,10 @@ namespace Qurabani.com_Server.Models.DTOs
 		public int? DealId { get; set; }
 		public bool? PickedUp { get; set; }
 		public int? PersonId { get; set; }
+		public int? Number { get; set; }
+		public int? Price { get; set; }
+		public int? FinalPrice { get; set; }
+		public string? AnimalType { get; set; }
 
-	}
+    }
 }

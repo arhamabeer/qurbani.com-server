@@ -5,7 +5,7 @@ namespace Qurabani.com_Server.Models;
 
 public partial class AuthAdmin
 {
-    public int PersonId { get; set; }
+    public int? PersonId { get; set; }
 
     public string Name { get; set; } = null!;
 

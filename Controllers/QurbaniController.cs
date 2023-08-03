@@ -2,7 +2,6 @@
 using Qurabani.com_Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Qurabani.com_Server.Models.DTOs;
-using Qurabani.com_Server.Models;
 
 namespace Qurabani.com_Server.Controllers.v1
 {

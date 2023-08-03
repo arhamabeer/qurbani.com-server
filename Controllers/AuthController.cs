@@ -1,10 +1,6 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿
 using Qurabani.com_Server.Helpers;
 using Qurabani.com_Server.Models.DTOs;
-using System.Security.Cryptography;
 using static Qurabani.com_Server.Responses.SwaggerResponse;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -60,7 +56,29 @@ namespace Qurabani.com_Server.Controllers
 				string salted = salt.GenerateSalt(128);
 				string peppered = pepper.GetMyPrivateConstant();
 				string hashedPassword = hash.HashPassword(registerDTO.Password, salted, peppered);
-				return null;
+
+				var adminData = new AuthAdmin
+				{
+					Salt = salted,
+					Email = registerDTO.Email,
+					Password = hashedPassword,
+					Name = registerDTO.Name
+				};
+
+				var res = await _context.AuthAdmins.AddAsync(adminData);
+				var resDeal = await _context.SaveChangesAsync();
+
+				if (resDeal > 0)
+				{
+					response.ResponseCode = (int)HttpStatusCode.OK;
+					response.ResponseMessage = HttpStatusCode.OK.ToString();
+					response.Data = "New user has been registered successfully.";
+					return Ok(response);
+				}
+				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+				response.ErrorMessage = "Server Error during the execution. Try Again";
+				return Forbid();
 			}
 
 			catch (Exception ex)

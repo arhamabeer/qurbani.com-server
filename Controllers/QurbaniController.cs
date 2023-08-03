@@ -15,15 +15,15 @@ namespace Qurabani.com_Server.Controllers.v1
         private readonly IntIsNullOrEmpty intHelper;
 
 
-        public QurbaniController(QurbaniContext context)
-        {
-            _context = context;
-            intHelper = new IntIsNullOrEmpty();
-        }
+		public QurbaniController(QurbaniContext context)
+		{
+			_context = context;
+			intHelper = new IntIsNullOrEmpty();
+		}
 
 
-        // ADD ANIMAL
-        [SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
+		// ADD ANIMAL
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
         [SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
         [SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]

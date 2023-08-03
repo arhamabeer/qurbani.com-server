@@ -102,17 +102,6 @@ public partial class QurbaniContext : DbContext
 				.HasMaxLength(256)
 				.IsUnicode(false);
 		});
-		//modelBuilder.Entity<AuthAdmin>(entity =>
-		//{
-		//	modelBuilder.Entity<AuthAdmin>().HasKey(p => p.PersonId);
-
-		//	// Specify the properties to be mapped to the corresponding columns
-		//	modelBuilder.Entity<AuthAdmin>().Property(p => p.PersonId).HasColumnName("PersonId");
-		//	modelBuilder.Entity<AuthAdmin>().Property(p => p.Name).HasColumnName("Name");
-		//	modelBuilder.Entity<AuthAdmin>().Property(p => p.Email).HasColumnName("Email");
-		//	modelBuilder.Entity<AuthAdmin>().Property(p => p.Password).HasColumnName("Password");
-		//	modelBuilder.Entity<AuthAdmin>().Property(p => p.Salt).HasColumnName("salt");
-		//});
 
 		modelBuilder.Entity<Dealing>(entity =>
 		{

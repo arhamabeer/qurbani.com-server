@@ -1,7 +1,10 @@
 
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Qurabani.com_Server.Helpers;
 using Qurabani.com_Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,7 +46,29 @@ builder.Services.AddCors(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+// JWT AUTHENTUCATION
+builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+	options.RequireHttpsMetadata = false;
+	options.SaveToken = true;
+	options.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateIssuer = true,
+		ValidateAudience = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = "https://localhost:7267/", // Change this to your issuer
+		ValidAudience = "https://localhost:7267/", // Change this to your audience
+		IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Secret").GetSection("Key").Value)) // Change this to your secret key
+	};
+});
+
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<JwtGenerator>();
+
 builder.Services.AddSwaggerGen(c =>
 	{
 		// top level

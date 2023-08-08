@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Qurabani.com_Server.Helpers;
 using Qurabani.com_Server.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,28 +47,28 @@ builder.Services.AddCors(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+
 // JWT AUTHENTUCATION
-builder.Services.AddAuthentication(options =>
-{
-	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-	options.RequireHttpsMetadata = false;
-	options.SaveToken = true;
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(options =>
 	options.TokenValidationParameters = new TokenValidationParameters
 	{
 		ValidateIssuer = true,
 		ValidateAudience = true,
+		ValidateLifetime = true,
 		ValidateIssuerSigningKey = true,
-		ValidIssuer = "https://localhost:7267/", // Change this to your issuer
-		ValidAudience = "https://localhost:7267/", // Change this to your audience
-		IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Secret").GetSection("Key").Value)) // Change this to your secret key
-	};
-});
+		ValidIssuer = builder.Configuration.GetSection("Secret").GetSection("Issuer").Value,
+		ValidAudience = builder.Configuration.GetSection("Secret").GetSection("Audience").Value,
+		IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Secret").GetSection("Key").Value))
+	});
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<JwtGenerator>();
+builder.Services.AddScoped<Salt>();
+builder.Services.AddScoped<Pepper>();
+builder.Services.AddScoped<Hasher>();
+builder.Services.AddScoped<VerifyPasswords>();
 
 builder.Services.AddSwaggerGen(c =>
 	{
@@ -84,12 +85,12 @@ builder.Services.AddSwaggerGen(c =>
 		});
 
 		// security header
-		c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+		c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
 		{
-			Description = "Token Authorization header using the ApiKey scheme",
-			Type = SecuritySchemeType.ApiKey,
+			Name = "Authorization",
 			In = ParameterLocation.Header,
-			Name = "X-Api-Key"
+			Type = SecuritySchemeType.ApiKey,
+			Scheme = JwtBearerDefaults.AuthenticationScheme
 		});
 		c.AddSecurityRequirement(new OpenApiSecurityRequirement
 		{
@@ -99,13 +100,40 @@ builder.Services.AddSwaggerGen(c =>
 				Reference = new OpenApiReference
 				{
 					Type = ReferenceType.SecurityScheme,
-					Id = "ApiKey"
-				}
+					Id = JwtBearerDefaults.AuthenticationScheme
+				},
+				Scheme = "Oauth2",
+				Name = JwtBearerDefaults.AuthenticationScheme,
+				In = ParameterLocation.Header
 			},
-			new string[] {}
+			new List<string>()
 			}
 		});
 	});
+
+// OLD
+//	c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+//	{
+//		Description = "Token Authorization header using the ApiKey scheme",
+//		Type = SecuritySchemeType.ApiKey,
+//		In = ParameterLocation.Header,
+//		Name = "Authorization"
+//	});
+//	c.AddSecurityRequirement(new OpenApiSecurityRequirement
+//	{
+//		{
+//		new OpenApiSecurityScheme
+//		{
+//			Reference = new OpenApiReference
+//			{
+//				Type = ReferenceType.SecurityScheme,
+//				Id = "ApiKey"
+//			}
+//		},
+//		new string[] {}
+//		}
+//	});
+//});
 
 
 

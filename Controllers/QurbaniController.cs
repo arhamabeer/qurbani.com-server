@@ -2,6 +2,7 @@
 using Qurabani.com_Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Qurabani.com_Server.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Qurabani.com_Server.Controllers.v1
 {
@@ -342,6 +343,7 @@ namespace Qurabani.com_Server.Controllers.v1
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
         //[Auth]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllAnimals()
         {

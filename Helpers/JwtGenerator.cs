@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,21 +18,40 @@ namespace Qurabani.com_Server.Helpers
 		}
 		public string GenerateJwtToken(string userId)
 		{
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = Encoding.UTF8.GetBytes(_configuration.GetSection("Secret").GetSection("Key").Value); // Use the same secret key used in Startup.cs
+			// Create claims
+			var claims = new List<Claim>();
 
-			var tokenDescriptor = new SecurityTokenDescriptor
-			{
-				Subject = new ClaimsIdentity(new Claim[]
-				{
-			new Claim(ClaimTypes.Name, userId)
-				}),
-				Expires = DateTime.UtcNow.AddMinutes(30), // Set the expiration time for the token
-				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-			};
+			claims.Add(new Claim(ClaimTypes.Name, userId));
 
-			var token = tokenHandler.CreateToken(tokenDescriptor);
-			return tokenHandler.WriteToken(token);
+			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Secret").GetSection("Key").Value));
+			var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+			var token = new JwtSecurityToken(
+				_configuration.GetSection("Secret").GetSection("Issuer").Value,
+				_configuration.GetSection("Secret").GetSection("Audience").Value,
+				claims,
+				expires: DateTime.Now.AddMinutes(15),
+				signingCredentials: credentials);
+
+			return new JwtSecurityTokenHandler().WriteToken(token);
+
+
+
+			//var tokenHandler = new JwtSecurityTokenHandler();
+			//var key = Encoding.UTF8.GetBytes(_configuration.GetSection("Secret").GetSection("Key").Value); // Use the same secret key used in Startup.cs
+
+			//var tokenDescriptor = new SecurityTokenDescriptor
+			//{
+			//	Subject = new ClaimsIdentity(new Claim[]
+			//	{
+			//new Claim(ClaimTypes.Name, userId)
+			//	}),
+			//	Expires = DateTime.UtcNow.AddMinutes(300), // Set the expiration time for the token
+			//	SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+			//};
+
+			//var token = tokenHandler.CreateToken(tokenDescriptor);
+			//return tokenHandler.WriteToken(token);
 		}
 	}
 }

@@ -22,13 +22,13 @@ namespace Qurabani.com_Server.Controllers
 		private readonly Hasher hash;
 		private readonly JwtGenerator _JWT; 
 		private readonly VerifyPasswords _verifyPasswords;
-		public AuthController(QurbaniContext context, JwtGenerator jWT)
+		public AuthController(QurbaniContext context, JwtGenerator jWT, Salt salt, Pepper pepper, Hasher hasher, VerifyPasswords verifyPasswords)
 		{
 			_context = context;
-			salt = new Salt();
-			pepper = new Pepper();
-			hash = new Hasher();
-			_verifyPasswords = new VerifyPasswords();
+			this.salt = salt;
+			this.pepper = pepper;
+			hash = hasher;
+			_verifyPasswords = verifyPasswords;
 			_JWT = jWT;
 		}
 
@@ -129,7 +129,7 @@ namespace Qurabani.com_Server.Controllers
 
 				if (_verifyPasswords.VerifyPassword(loginDTO.Password, user.Salt, pepper.GetMyPrivateConstant(), user.Password))
 				{
-					var token = _JWT.GenerateJwtToken(user.PersonId.ToString());
+					var token = _JWT.GenerateJwtToken(user.Name);
 
 					response.ResponseCode = (int)HttpStatusCode.OK;
 					response.ResponseMessage = HttpStatusCode.OK.ToString();

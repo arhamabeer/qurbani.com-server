@@ -108,7 +108,7 @@ namespace Qurabani.com_Server.Controllers
 		[HttpPost()]
 		public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
 		{
-			ApiResponse<string> response = new ApiResponse<string>();
+			ApiResponse<LoginDTO> response = new ApiResponse<LoginDTO>();
 			try
 			{
 				if (string.IsNullOrEmpty(loginDTO.Email) || string.IsNullOrEmpty(loginDTO.Password))
@@ -130,11 +130,16 @@ namespace Qurabani.com_Server.Controllers
 				if (_verifyPasswords.VerifyPassword(loginDTO.Password, user.Salt, pepper.GetMyPrivateConstant(), user.Password))
 				{
 					var token = _JWT.GenerateJwtToken(user.Name);
+					var data = new LoginDTO
+					{
+						Email = loginDTO.Email,
+						Name = user.Name
+					};
 
 					response.ResponseCode = (int)HttpStatusCode.OK;
 					response.ResponseMessage = HttpStatusCode.OK.ToString();
 					response.Description = token;
-					response.Data = "Login Successfull.";
+					response.Data = data;
 					return Ok(response);
 				}
 				else

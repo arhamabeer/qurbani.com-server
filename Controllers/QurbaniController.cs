@@ -33,7 +33,7 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        //[Auth]
+        [Authorize]
         [HttpPost()]
         public async Task<IActionResult> AddAnimal([FromBody] AnimalDTO animalDTO)
         {
@@ -88,7 +88,7 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        //[Auth]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> ConfirmDealing([FromBody] DealingDTO dealingDTO)
         {
@@ -199,7 +199,7 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        //[Auth]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetDealOfPerson(string nic)
         {
@@ -284,7 +284,7 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        //[Auth]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> IssueDealToPerson([FromBody] IssueDealRequestDTO issueDealRequestDTO)
         {
@@ -342,7 +342,6 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        //[Auth]
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllAnimals()
@@ -399,7 +398,7 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        //[Auth]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAnimalRegisteration()
         {
@@ -434,7 +433,7 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        //[Auth]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAnimalNumberAvailableForRegisteration(int AnimalId)
         {
@@ -487,7 +486,7 @@ namespace Qurabani.com_Server.Controllers.v1
         [SwaggerOperation(
             Summary = "Get all initial product list",
             Description = "This function returns all products in MongoDB format")]
-        //[Auth]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAnimalNumberAvailableForDealing(int AnimalId)
         {

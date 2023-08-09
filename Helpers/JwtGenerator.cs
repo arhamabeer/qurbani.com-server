@@ -21,7 +21,7 @@ namespace Qurabani.com_Server.Helpers
 			// Create claims
 			var claims = new List<Claim>();
 
-			claims.Add(new Claim(ClaimTypes.Name, userId));
+			claims.Add(new Claim(ClaimTypes.Email, userId));
 
 			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Secret").GetSection("Key").Value));
 			var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -30,7 +30,7 @@ namespace Qurabani.com_Server.Helpers
 				_configuration.GetSection("Secret").GetSection("Issuer").Value,
 				_configuration.GetSection("Secret").GetSection("Audience").Value,
 				claims,
-				expires: DateTime.Now.AddMinutes(15),
+				expires: DateTime.Now.AddMinutes(1),
 				signingCredentials: credentials);
 
 			return new JwtSecurityTokenHandler().WriteToken(token);

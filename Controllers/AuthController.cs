@@ -1,8 +1,10 @@
 ﻿
 using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Qurabani.com_Server.Helpers;
 using Qurabani.com_Server.Models.DTOs;
+using System.Security.Claims;
 using static Qurabani.com_Server.Responses.SwaggerResponse;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,7 +22,7 @@ namespace Qurabani.com_Server.Controllers
 		private readonly Salt salt;
 		private readonly Pepper pepper;
 		private readonly Hasher hash;
-		private readonly JwtGenerator _JWT; 
+		private readonly JwtGenerator _JWT;
 		private readonly VerifyPasswords _verifyPasswords;
 		public AuthController(QurbaniContext context, JwtGenerator jWT, Salt salt, Pepper pepper, Hasher hasher, VerifyPasswords verifyPasswords)
 		{
@@ -137,7 +139,7 @@ namespace Qurabani.com_Server.Controllers
 
 				if (_verifyPasswords.VerifyPassword(loginDTO.Password, user.Salt, pepper.GetMyPrivateConstant(), user.Password))
 				{
-					var token = _JWT.GenerateJwtToken(user.Name);
+					var token = _JWT.GenerateJwtToken(user.Email);
 					var data = new LoginDTO
 					{
 						Email = loginDTO.Email,
@@ -158,7 +160,72 @@ namespace Qurabani.com_Server.Controllers
 					return Unauthorized(response);
 				}
 
-				
+
+			}
+			catch (Exception ex)
+			{
+				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
+				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
+				response.ErrorMessage = "Server Error during the execution. Try Again";
+				return Forbid();
+			}
+		}
+
+		// GET USER INFO
+		[SwaggerResponse((int)HttpStatusCode.OK, Description = "Products are found and ready to diliver", Type = typeof(ApiResponse<string>))]
+		[SwaggerResponse((int)HttpStatusCode.Unauthorized, Description = "User is not authorized to access this url", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No product Found", Type = typeof(ApiResponse<>))]
+		[SwaggerResponse((int)HttpStatusCode.InternalServerError, Description = "Server has failed to read data", Type = typeof(ApiResponse<>))]
+		[Produces("application/json", "application/xml")]
+		[Consumes("application/json", "application/xml")]
+		[SwaggerOperation(
+			Summary = "Get all initial product list",
+			Description = "This function returns all products in MongoDB format")]
+		[Authorize]
+		[HttpGet()]
+		public async Task<IActionResult> GetUserInfo()
+		{
+			ApiResponse<LoginDTO> response = new ApiResponse<LoginDTO>();
+			try
+			{
+				// Get the claims principal
+				var claimsPrincipal = User;
+
+				// Retrieve the email claim from the claims principal
+				var emailClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+
+				if (emailClaim != null)
+				{
+					var email = emailClaim.Value;
+					// Now you have the email address from the JWT token, use it as needed.
+					var user = await _context.AuthAdmins.FirstOrDefaultAsync(x => x.Email == email);
+					if (user != null)
+					{
+						var data = new LoginDTO
+						{
+							Email = email,
+							Name = user.Name
+						};
+						response.ResponseCode = (int)HttpStatusCode.OK;
+						response.ResponseMessage = HttpStatusCode.OK.ToString();
+						response.Data = data;
+						return Ok(response);
+					}
+					else
+					{
+						response.ResponseCode = (int)HttpStatusCode.NotFound;
+						response.ResponseMessage = HttpStatusCode.NotFound.ToString();
+						response.ErrorMessage = "Email claim not found in the token.";
+						return NotFound(response);
+					}
+				}
+				else
+				{
+					response.ResponseCode = (int)HttpStatusCode.NotFound;
+					response.ResponseMessage = HttpStatusCode.NotFound.ToString();
+					response.ErrorMessage = "Email claim not found in the token.";
+					return NotFound(response);
+				}
 			}
 			catch (Exception ex)
 			{

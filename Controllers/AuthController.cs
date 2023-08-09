@@ -56,6 +56,14 @@ namespace Qurabani.com_Server.Controllers
 					response.ErrorMessage = "Email, Name or Password should not be empty";
 					return BadRequest(response);
 				}
+				var user = await _context.AuthAdmins.FirstOrDefaultAsync(e => e.Email == registerDTO.Email);
+				if (user != null)
+				{
+					response.ResponseCode = (int)HttpStatusCode.BadRequest;
+					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
+					response.ErrorMessage = "Admin with this email is already exists.";
+					return BadRequest(response);
+				}
 
 				string salted = salt.GenerateSalt(128);
 				string peppered = pepper.GetMyPrivateConstant();

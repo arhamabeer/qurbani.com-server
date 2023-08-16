@@ -30,7 +30,7 @@ namespace Qurabani.com_Server.Helpers
 				_configuration.GetSection("Secret").GetSection("Issuer").Value,
 				_configuration.GetSection("Secret").GetSection("Audience").Value,
 				claims,
-				expires: DateTime.Now.AddMinutes(1),
+				expires: DateTime.Now.AddMinutes(10),
 				signingCredentials: credentials);
 
 			return new JwtSecurityTokenHandler().WriteToken(token);

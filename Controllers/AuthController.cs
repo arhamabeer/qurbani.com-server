@@ -11,7 +11,6 @@ using static Qurabani.com_Server.Responses.SwaggerResponse;
 
 namespace Qurabani.com_Server.Controllers
 {
-
 	[ApiController]
 	[ApiVersion("1.0")]
 	[Route("[controller]/[action]")]
@@ -24,7 +23,8 @@ namespace Qurabani.com_Server.Controllers
 		private readonly Hasher hash;
 		private readonly JwtGenerator _JWT;
 		private readonly VerifyPasswords _verifyPasswords;
-		public AuthController(QurbaniContext context, JwtGenerator jWT, Salt salt, Pepper pepper, Hasher hasher, VerifyPasswords verifyPasswords)
+		private readonly ILogger<AuthController> _logger;
+		public AuthController(QurbaniContext context, JwtGenerator jWT, Salt salt, Pepper pepper, Hasher hasher, VerifyPasswords verifyPasswords, ILogger<AuthController> logger)
 		{
 			_context = context;
 			this.salt = salt;
@@ -32,6 +32,7 @@ namespace Qurabani.com_Server.Controllers
 			hash = hasher;
 			_verifyPasswords = verifyPasswords;
 			_JWT = jWT;
+			_logger = logger;
 		}
 
 		// Register
@@ -121,11 +122,13 @@ namespace Qurabani.com_Server.Controllers
 			ApiResponse<LoginDTO> response = new ApiResponse<LoginDTO>();
 			try
 			{
+				_logger.LogInformation("LOGIN API HIT...");
 				if (string.IsNullOrEmpty(loginDTO.Email) || string.IsNullOrEmpty(loginDTO.Password))
 				{
 					response.ResponseCode = (int)HttpStatusCode.BadRequest;
 					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
 					response.ErrorMessage = "Email or Password should not be empty";
+					_logger.LogInformation($"LOGIN API NULL EXCEPTION... {response.ErrorMessage}");
 					return BadRequest(response);
 				}
 				var user = await _context.AuthAdmins.FirstOrDefaultAsync(x => x.Email == loginDTO.Email);
@@ -134,6 +137,7 @@ namespace Qurabani.com_Server.Controllers
 					response.ResponseCode = (int)HttpStatusCode.NotFound;
 					response.ResponseMessage = HttpStatusCode.NotFound.ToString();
 					response.ErrorMessage = "Cannot found any Admin registered with provided email";
+					_logger.LogInformation($"LOGIN API NOT-FOUNT EXCEPTION... {response.ErrorMessage}");
 					return NotFound(response);
 				}
 
@@ -150,6 +154,7 @@ namespace Qurabani.com_Server.Controllers
 					response.ResponseMessage = HttpStatusCode.OK.ToString();
 					response.Description = token;
 					response.Data = data;
+					_logger.LogInformation($"LOGIN API OK... {response.Data}");
 					return Ok(response);
 				}
 				else
@@ -157,6 +162,7 @@ namespace Qurabani.com_Server.Controllers
 					response.ResponseCode = (int)HttpStatusCode.Unauthorized;
 					response.ResponseMessage = HttpStatusCode.Unauthorized.ToString();
 					response.ErrorMessage = "Wrong Credentials, try again.";
+					_logger.LogInformation($"LOGIN API UNAUTH EXCEPTION... {response.ErrorMessage}");
 					return Unauthorized(response);
 				}
 
@@ -164,6 +170,7 @@ namespace Qurabani.com_Server.Controllers
 			}
 			catch (Exception ex)
 			{
+				_logger.LogError($"LOGIN API CATCH... {ex.Message}");
 				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
 				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
 				response.ErrorMessage = "Server Error during the execution. Try Again";

@@ -157,3 +157,12 @@ C:\Users\arham\source\repos\qurbani.com-server\obj\Debug\net7.0\Qurabani.com-Ser
 C:\Users\arham\source\repos\qurbani.com-server\obj\Debug\net7.0\Qurabani.com-Server.genruntimeconfig.cache
 C:\Users\arham\source\repos\qurbani.com-server\obj\Debug\net7.0\ref\Qurabani.com-Server.dll
 C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.AspNetCore.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.Extensions.Hosting.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.Extensions.Logging.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.Formatting.Compact.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.Settings.Configuration.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.Sinks.Console.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.Sinks.Debug.dll
+C:\Users\DELL\source\repos\Qurabani.com-Server\Qurabani.com-Server\bin\Debug\net7.0\Serilog.Sinks.File.dll

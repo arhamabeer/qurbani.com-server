@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Qurabani.com_Server.Helpers;
 using Qurabani.com_Server.Models;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +32,14 @@ var builder = WebApplication.CreateBuilder(args);
 //	setup.SubstituteApiVersionInUrl = false;
 //});
 #endregion
+
+#region SeriLog Confg
+Log.Logger = new LoggerConfiguration()
+			.WriteTo.Console()
+			.WriteTo.File(@"D:\.NET logs\qurbani.com_server_Logs\logs.txt", rollingInterval: RollingInterval.Day)
+			.CreateLogger();
+#endregion
+
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<QurbaniContext>();
@@ -62,13 +71,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 		IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Secret").GetSection("Key").Value))
 	});
 
+#region Services Injection
 
+builder.Services.AddSerilog();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<JwtGenerator>();
 builder.Services.AddScoped<Salt>();
 builder.Services.AddScoped<Pepper>();
 builder.Services.AddScoped<Hasher>();
 builder.Services.AddScoped<VerifyPasswords>();
+
+#endregion
 
 builder.Services.AddSwaggerGen(c =>
 	{
@@ -111,33 +124,6 @@ builder.Services.AddSwaggerGen(c =>
 		});
 	});
 
-// OLD
-//	c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
-//	{
-//		Description = "Token Authorization header using the ApiKey scheme",
-//		Type = SecuritySchemeType.ApiKey,
-//		In = ParameterLocation.Header,
-//		Name = "Authorization"
-//	});
-//	c.AddSecurityRequirement(new OpenApiSecurityRequirement
-//	{
-//		{
-//		new OpenApiSecurityScheme
-//		{
-//			Reference = new OpenApiReference
-//			{
-//				Type = ReferenceType.SecurityScheme,
-//				Id = "ApiKey"
-//			}
-//		},
-//		new string[] {}
-//		}
-//	});
-//});
-
-
-
-
 var app = builder.Build();
 
 //var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
@@ -154,9 +140,11 @@ app.UseHttpsRedirection();
 // CORS
 app.UseCors();
 
+// AUTH
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();

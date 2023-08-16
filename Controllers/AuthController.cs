@@ -50,6 +50,7 @@ namespace Qurabani.com_Server.Controllers
 		public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
 		{
 			ApiResponse<string> response = new ApiResponse<string>();
+			_logger.LogInformation("REGISTER API HIT...");
 			try
 			{
 				if (string.IsNullOrEmpty(registerDTO.Email) || string.IsNullOrEmpty(registerDTO.Name) || string.IsNullOrEmpty(registerDTO.Password))
@@ -57,6 +58,7 @@ namespace Qurabani.com_Server.Controllers
 					response.ResponseCode = (int)HttpStatusCode.BadRequest;
 					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
 					response.ErrorMessage = "Email, Name or Password should not be empty";
+					_logger.LogInformation($"REGISTER API NULL EXCEPTION... {response.ErrorMessage}");
 					return BadRequest(response);
 				}
 				var user = await _context.AuthAdmins.FirstOrDefaultAsync(e => e.Email == registerDTO.Email);
@@ -65,6 +67,7 @@ namespace Qurabani.com_Server.Controllers
 					response.ResponseCode = (int)HttpStatusCode.BadRequest;
 					response.ResponseMessage = HttpStatusCode.BadRequest.ToString();
 					response.ErrorMessage = "Admin with this email is already exists.";
+					_logger.LogInformation($"REGISTER API ALREADY EXISTS EXCEPTION... {response.ErrorMessage}");
 					return BadRequest(response);
 				}
 
@@ -88,11 +91,13 @@ namespace Qurabani.com_Server.Controllers
 					response.ResponseCode = (int)HttpStatusCode.OK;
 					response.ResponseMessage = HttpStatusCode.OK.ToString();
 					response.Data = "New user has been registered successfully.";
+					_logger.LogInformation($"REGISTER API OK... {response.ResponseMessage}");
 					return Ok(response);
 				}
 				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
 				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
 				response.ErrorMessage = "Server Error during the execution. Try Again";
+				_logger.LogError($"REGISTER API FORBID... {response.ErrorMessage}");
 				return Forbid();
 			}
 
@@ -101,6 +106,7 @@ namespace Qurabani.com_Server.Controllers
 				response.ResponseCode = (int)HttpStatusCode.InternalServerError;
 				response.ResponseMessage = HttpStatusCode.InternalServerError.ToString();
 				response.ErrorMessage = "Server Error during the execution. Try Again";
+				_logger.LogError($"REGISTER API CATCH... {ex.Message}");
 				return Forbid();
 			}
 		}
@@ -137,7 +143,7 @@ namespace Qurabani.com_Server.Controllers
 					response.ResponseCode = (int)HttpStatusCode.NotFound;
 					response.ResponseMessage = HttpStatusCode.NotFound.ToString();
 					response.ErrorMessage = "Cannot found any Admin registered with provided email";
-					_logger.LogInformation($"LOGIN API NOT-FOUNT EXCEPTION... {response.ErrorMessage}");
+					_logger.LogInformation($"LOGIN API NOT-FOUND EXCEPTION... {response.ErrorMessage}");
 					return NotFound(response);
 				}
 
@@ -154,7 +160,7 @@ namespace Qurabani.com_Server.Controllers
 					response.ResponseMessage = HttpStatusCode.OK.ToString();
 					response.Description = token;
 					response.Data = data;
-					_logger.LogInformation($"LOGIN API OK... {response.Data}");
+					_logger.LogInformation($"LOGIN API OK... {response.ResponseMessage}");
 					return Ok(response);
 				}
 				else

@@ -41,21 +41,6 @@ Log.Logger = new LoggerConfiguration()
 #endregion
 
 
-
-#region SYNC SERVICE
-//IHost host = Host.CreateDefaultBuilder(args)
-//// Below code has been commented for testing purpose
-//.ConfigureServices((hostContext, services) =>
-//{
-	
-
-//})
-//.UseSerilog().Build();
-
-//await host.RunAsync();
-#endregion
-
-
 builder.Services.AddControllers();
 builder.Services.AddDbContext<QurbaniContext>();
 
@@ -86,6 +71,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 		IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Secret").GetSection("Key").Value))
 	});
 
+#region Services Injection
+
 builder.Services.AddSerilog();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<JwtGenerator>();
@@ -93,6 +80,8 @@ builder.Services.AddScoped<Salt>();
 builder.Services.AddScoped<Pepper>();
 builder.Services.AddScoped<Hasher>();
 builder.Services.AddScoped<VerifyPasswords>();
+
+#endregion
 
 builder.Services.AddSwaggerGen(c =>
 	{
